@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FleetControl QRoo - Sistema de Gestión de Flotas Turísticas</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #00b4d8;
+            --secondary-color: #0077b6;
+            --accent-color: #90e0ef;
+            --success-color: #06ffa5;
+            --warning-color: #ffb700;
+            --danger-color: #ff006e;
+            --dark-bg: #03045e;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --text-primary: #023047;
+            --text-secondary: #219ebc;
+            --gradient-main: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            --gradient-accent: linear-gradient(135deg, #90e0ef 0%, #00b4d8 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #caf0f8 0%, #90e0ef 50%, #00b4d8 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-main);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .data-table-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-main);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 180, 216, 0.3);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th {
+            background: var(--gradient-main);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(144, 224, 239, 0.1);
+            transform: scale(1.01);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(6, 255, 165, 0.2);
+            color: #04d361;
+        }
+
+        .status-transit {
+            background: rgba(255, 183, 0, 0.2);
+            color: #ff8f00;
+        }
+
+        .status-maintenance {
+            background: rgba(255, 0, 110, 0.2);
+            color: #ff006e;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .widget {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .widget-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(0, 180, 216, 0.2);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+
+        .route-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(144, 224, 239, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .route-item:hover {
+            background: rgba(144, 224, 239, 0.2);
+            transform: translateX(5px);
+        }
+
+        .route-info h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .route-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .route-duration {
+            background: var(--gradient-accent);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--danger-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid rgba(0, 180, 216, 0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header animate__animated animate__fadeInDown">
+            <h1><i class="fas fa-bus"></i> FleetControl QRoo</h1>
+            <p>Sistema Integral de Gestión de Flotas Turísticas - Riviera Maya & Cancún</p>
+        </header>
+
+        <div class="dashboard-stats animate__animated animate__fadeInUp">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--gradient-main);">
+                        <i class="fas fa-bus"></i>
+                    </div>
+                    <span class="stat-number" id="totalVehicles">24</span>
+                </div>
+                <div class="stat-label">Vehículos Activos</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--warning-color);">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <span class="stat-number" id="activeRoutes">8</span>
+                </div>
+                <div class="stat-label">Rutas en Operación</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--success-color);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="stat-number" id="dailyPassengers">156</span>
+                </div>
+                <div class="stat-label">Pasajeros Hoy</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--danger-color);">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <span class="stat-number" id="dailyRevenue">$8,450</span>
+                </div>
+                <div class="stat-label">Ingresos Diarios</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="data-table-container animate__animated animate__fadeInLeft">
+                <div class="table-header">
+                    <h2 class="table-title">Control de Traslados</h2>
+                    <button class="btn btn-primary" onclick="openModal('transferModal')">
+                        <i class="fas fa-plus"></i> Nuevo Traslado
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <input type="text" placeholder="Buscar por destino..." class="filter-input" id="filterDestination" onkeyup="filterTable()">
+                    <select class="filter-input" id="filterStatus" onchange="filterTable()">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activo</option>
+                        <option value="transit">En Tránsito</option>
+                        <option value="maintenance">Mantenimiento</option>
+                    </select>
+                </div>
+
+                <table class="data-table" id="transfersTable">
+                    <thead>
+                        <tr>
+                            <th>Vehículo</th>
+                            <th>Ruta</th>
+                            <th>Pasajeros</th>
+                            <th>Salida</th>
+                            <th>Llegada Est.</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transfersTableBody">
+                        <!-- Los datos se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="sidebar animate__animated animate__fadeInRight">
+                <div class="widget">
+                    <h3 class="widget-title"><i class="fas fa-map-marked-alt"></i> Rutas Populares</h3>
+                    <div id="popularRoutes">
+                        <div class="route-item">
+                            <div class="route-info">
+                                <h4>Aeropuerto → Playa del Carmen</h4>
+                                <p>12 traslados hoy</p>
+                            </div>
+                            <div class="route-duration">45 min</div>
+                        </div>
+                        <div class="route-item">
+                            <div class="route-info">
+                                <h4>Cancún → Tulum</h4>
+                                <p>8 traslados hoy</p>
+                            </div>
+                            <div class="route-duration">2h 15min</div>
+                        </div>
+                        <div class="route-item">
+                            <div class="route-info">
+                                <h4>Cozumel → Xcaret</h4>
+                                <p>6 traslados hoy</p>
+                            </div>
+                            <div class="route-duration">1h 30min</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h3 class="widget-title"><i class="fas fa-chart-line"></i> Rendimiento Semanal</h3>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h3 class="widget-title"><i class="fas fa-exclamation-triangle"></i> Alertas</h3>
+                    <div id="alertsList">
+                        <div class="route-item" style="background: rgba(255, 183, 0, 0.1);">
+                            <div class="route-info">
+                                <h4>Vehículo QR-001</h4>
+                                <p>Mantenimiento programado</p>
+                            </div>
+                            <i class="fas fa-wrench" style="color: var(--warning-color);"></i>
+                        </div>
+                        <div class="route-item" style="background: rgba(6, 255, 165, 0.1);">
+                            <div class="route-info">
+                                <h4>Ruta Tulum</h4>
+                                <p>Tráfico ligero detectado</p>
+                            </div>
+                            <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nuevo Traslado -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('transferModal')">&times;</span>
+            <h2 style="margin-bottom: 20px; color: var(--text-primary);">
+                <i class="fas fa-plus-circle"></i> Programar Nuevo Traslado
+            </h2>
+            
+            <form id="transferForm">
+                <div class="form-group">
+                    <label class="form-label">Vehículo</label>
+                    <select class="form-select" id="vehicleSelect" required>
+                        <option value="">Seleccionar vehículo</option>
+                        <option value="QR-001">QR-001 - Mercedes Sprinter (19 pax)</option>
+                        <option value="QR-002">QR-002 - Ford Transit (12 pax)</option>
+                        <option value="QR-003">QR-003 - Chevrolet Suburban (7 pax)</option>
+                        <option value="QR-004">QR-004 - Nissan Urvan (15 pax)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Punto de Origen</label>
+                    <select class="form-select" id="originSelect" required>
+                        <option value="">Seleccionar origen</option>
+                        <option value="Aeropuerto Cancún">Aeropuerto Internacional de Cancún</option>
+                        <option value="Playa del Carmen">Playa del Carmen Centro</option>
+                        <option value="Tulum">Tulum Centro</option>
+                        <option value="Cozumel">Cozumel Puerto</option>
+                        <option value="Akumal">Akumal</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Destino</label>
+                    <select class="form-select" id="destinationSelect" required>
+                        <option value="">Seleccionar destino</option>
+                        <option value="Hotel Xcaret">Hotel Xcaret</option>
+                        <option value="Hotel Moon Palace">Hotel Moon Palace</option>
+                        <option value="Iberostar Paraíso">Iberostar Paraíso</option>
+                        <option value="Grand Velas">Grand Velas Riviera Maya</option>
+                        <option value="Maroma Beach">Maroma Beach</option>
+                        <option value="Chichen Itza">Chichen Itzá</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Número de Pasajeros</label>
+                    <input type="number" class="form-input" id="passengersInput" min="1" max="19" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hora de Salida</label>
+                    <input type="datetime-local" class="form-input" id="departureTime" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Observaciones</label>
+                    <textarea class="form-input" id="notesInput" rows="3" placeholder="Notas especiales sobre el traslado..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-save"></i> Programar Traslado
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Datos de ejemplo para los traslados
+        let transfers = [
+            {
+                id: 1,
+                vehicle: 'QR-001',
+                route: 'Aeropuerto → Hotel Xcaret',
+                passengers: 12,
+                departure: '09:30',
+                arrival: '10:15',
+                status: 'active',
+                notes: 'Familia con niños pequeños'
+            },
+            {
+                id: 2,
+                vehicle: 'QR-002',
+                route: 'Playa del Carmen → Tulum',
+                passengers: 8,
+                departure: '11:00',
+                arrival: '12:30',
+                status: 'transit',
+                notes: 'Tour arqueológico'
+            },
+            {
+                id: 3,
+                vehicle: 'QR-003',
+                route: 'Cozumel → Xcaret',
+                passengers: 6,
+                departure: '14:00',
+                arrival: '15:30',
+                status: 'active',
+                notes: 'Excursión de snorkel'
+            },
+            {
+                id: 4,
+                vehicle: 'QR-004',
+                route: 'Aeropuerto → Moon Palace',
+                passengers: 15,
+                departure: '16:30',
+                arrival: '17:45',
+                status: 'maintenance',
+                notes: 'Revisión programada'
+            }
+        ];
+
+        // Función para renderizar la tabla
+        function renderTable(data = transfers) {
+            const tbody = document.getElementById('transfersTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(transfer => {
+                const statusClass = `status-${transfer.status}`;
+                const statusText = {
+                    'active': 'Activo',
+                    'transit': 'En Tránsito',
+                    'maintenance': 'Mantenimiento'
+                }[transfer.status];
+
+                const row = `
+                    <tr>
+                        <td><strong>${transfer.vehicle}</strong></td>
+                        <td>${transfer.route}</td>
+                        <td><i class="fas fa-users"></i> ${transfer.passengers}</td>
+                        <td>${transfer.departure}</td>
+                        <td>${transfer.arrival}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="btn" style="background: var(--accent-color); color: var(--text-primary); padding: 8px 12px;" onclick="editTransfer(${transfer.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn" style="background: var(--danger-color); color: white; padding: 8px 12px; margin-left: 5px;" onclick="deleteTransfer(${transfer.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Función para filtrar la tabla
+        function filterTable() {
+            const destinationFilter = document.getElementById('filterDestination').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            const filtered = transfers.filter(transfer => {
+                const matchesDestination = transfer.route.toLowerCase().includes(destinationFilter);
+                const matchesStatus = !statusFilter || transfer.status === statusFilter;
+                return matchesDestination && matchesStatus;
+            });
+
+            renderTable(filtered);
+        }
+
+        // Funciones de modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Manejo del formulario de nuevo traslado
+        document.getElementById('transferForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newTransfer = {
+                id: transfers.length + 1,
+                vehicle: document.getElementById('vehicleSelect').value,
+                route: `${document.getElementById('originSelect').value} → ${document.getElementById('destinationSelect').value}`,
+                passengers: parseInt(document.getElementById('passengersInput').value),
+                departure: new Date(document.getElementById('departureTime').value).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}),
+                arrival: new Date(new Date(document.getElementById('departureTime').value).getTime() + 60*60*1000).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}),
+                status: 'active',
+                notes: document.getElementById('notesInput').value
+            };
+
+            transfers.push(newTransfer);
+            renderTable();
+            closeModal('transferModal');
+            showNotification('Traslado programado exitosamente');
+            
+            // Actualizar estadísticas
+            updateStats();
+            
+            // Limpiar formulario
+            document.getElementById('transferForm').reset();
+        });
+
+        // Función para actualizar estadísticas
+        function updateStats() {
+            document.getElementById('totalVehicles').textContent = new Set(transfers.map(t => t.vehicle)).size;
+            document.getElementById('activeRoutes').textContent = transfers.filter(t => t.status === 'active').length;
+            document.getElementById('dailyPassengers').textContent = transfers.reduce((sum, t) => sum + t.passengers, 0);
+            
+            // Simular ingresos (promedio $54 pesos por pasajero)
+            const revenue = transfers.reduce((sum, t) => sum + (t.passengers * 54), 0);
+            document.getElementById('dailyRevenue').textContent = `${revenue.toLocaleString()}`;
+        }
+
+        // Función para editar traslado
+        function editTransfer(id) {
+            const transfer = transfers.find(t => t.id === id);
+            if (transfer) {
+                showNotification(`Editando traslado ${transfer.vehicle}`, 'success');
+                // Aquí se podría abrir un modal de edición
+            }
+        }
+
+        // Función para eliminar traslado
+        function deleteTransfer(id) {
+            if (confirm('¿Está seguro de que desea eliminar este traslado?')) {
+                transfers = transfers.filter(t => t.id !== id);
+                renderTable();
+                updateStats();
+                showNotification('Traslado eliminado correctamente', 'success');
+            }
+        }
+
+        // Crear gráfico de rendimiento
+        function createPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            const chartData = {
+                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Traslados Realizados',
+                    data: [45, 52, 38, 61, 73, 89, 67],
+                    borderColor: '#00b4d8',
+                    backgroundColor: 'rgba(0, 180, 216, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#00b4d8',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }, {
+                    label: 'Ingresos (Miles)',
+                    data: [2.4, 2.8, 2.1, 3.3, 3.9, 4.8, 3.6],
+                    borderColor: '#90e0ef',
+                    backgroundColor: 'rgba(144, 224, 239, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#90e0ef',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para simular actualizaciones en tiempo real
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Actualizar estado de algunos traslados aleatoriamente
+                const randomTransfer = transfers[Math.floor(Math.random() * transfers.length)];
+                const statuses = ['active', 'transit', 'maintenance'];
+                const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                
+                if (randomTransfer && randomTransfer.status !== newStatus) {
+                    randomTransfer.status = newStatus;
+                    renderTable();
+                    
+                    // Mostrar notificación de cambio de estado
+                    const statusText = {
+                        'active': 'Activo',
+                        'transit': 'En Tránsito',
+                        'maintenance': 'Mantenimiento'
+                    }[newStatus];
+                    
+                    showNotification(`${randomTransfer.vehicle}: Estado cambiado a ${statusText}`, 'success');
+                }
+            }, 15000); // Actualizar cada 15 segundos
+        }
+
+        // Función para exportar datos a CSV
+        function exportToCSV() {
+            const headers = ['Vehículo', 'Ruta', 'Pasajeros', 'Salida', 'Llegada', 'Estado', 'Notas'];
+            const csvContent = [
+                headers.join(','),
+                ...transfers.map(t => [
+                    t.vehicle,
+                    `"${t.route}"`,
+                    t.passengers,
+                    t.departure,
+                    t.arrival,
+                    t.status,
+                    `"${t.notes || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `traslados_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Datos exportados exitosamente', 'success');
+        }
+
+        // Función para generar reportes
+        function generateReport() {
+            const totalTransfers = transfers.length;
+            const activeTransfers = transfers.filter(t => t.status === 'active').length;
+            const totalPassengers = transfers.reduce((sum, t) => sum + t.passengers, 0);
+            const totalRevenue = transfers.reduce((sum, t) => sum + (t.passengers * 54), 0);
+            
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(`
+                <html>
+                <head>
+                    <title>Reporte de Operaciones - FleetControl QRoo</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
+                        .stat-box { border: 1px solid #ddd; padding: 20px; text-align: center; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Reporte de Operaciones Diarias</h1>
+                        <p>FleetControl QRoo - ${new Date().toLocaleDateString('es-ES')}</p>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-box">
+                            <h3>${totalTransfers}</h3>
+                            <p>Total de Traslados</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>${activeTransfers}</h3>
+                            <p>Traslados Activos</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>${totalPassengers}</h3>
+                            <p>Total de Pasajeros</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>${totalRevenue.toLocaleString()}</h3>
+                            <p>Ingresos Totales</p>
+                        </div>
+                    </div>
+                    
+                    <h2>Detalle de Traslados</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vehículo</th>
+                                <th>Ruta</th>
+                                <th>Pasajeros</th>
+                                <th>Horario</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${transfers.map(t => `
+                                <tr>
+                                    <td>${t.vehicle}</td>
+                                    <td>${t.route}</td>
+                                    <td>${t.passengers}</td>
+                                    <td>${t.departure} - ${t.arrival}</td>
+                                    <td>${t.status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            
+            showNotification('Reporte generado exitosamente', 'success');
+        }
+
+        // Agregar botones de exportación y reporte
+        function addActionButtons() {
+            const tableHeader = document.querySelector('.table-header');
+            
+            const exportBtn = document.createElement('button');
+            exportBtn.className = 'btn';
+            exportBtn.style.background = 'var(--success-color)';
+            exportBtn.style.color = 'white';
+            exportBtn.style.marginRight = '10px';
+            exportBtn.innerHTML = '<i class="fas fa-download"></i> Exportar CSV';
+            exportBtn.onclick = exportToCSV;
+            
+            const reportBtn = document.createElement('button');
+            reportBtn.className = 'btn';
+            reportBtn.style.background = 'var(--warning-color)';
+            reportBtn.style.color = 'white';
+            reportBtn.style.marginRight = '10px';
+            reportBtn.innerHTML = '<i class="fas fa-file-alt"></i> Generar Reporte';
+            reportBtn.onclick = generateReport;
+            
+            const newTransferBtn = tableHeader.querySelector('.btn-primary');
+            tableHeader.insertBefore(exportBtn, newTransferBtn);
+            tableHeader.insertBefore(reportBtn, newTransferBtn);
+        }
+
+        // Cerrar modales al hacer clic fuera de ellos
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Función para inicializar la aplicación
+        function initializeApp() {
+            renderTable();
+            updateStats();
+            createPerformanceChart();
+            addActionButtons();
+            simulateRealTimeUpdates();
+            
+            // Mostrar mensaje de bienvenida
+            setTimeout(() => {
+                showNotification('Sistema FleetControl QRoo iniciado correctamente', 'success');
+            }, 1000);
+        }
+
+        // Función para manejar búsqueda por voz (si está disponible)
+        function initVoiceSearch() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.lang = 'es-MX';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                const voiceBtn = document.createElement('button');
+                voiceBtn.className = 'btn';
+                voiceBtn.style.background = 'var(--accent-color)';
+                voiceBtn.style.color = 'var(--text-primary)';
+                voiceBtn.style.marginLeft = '10px';
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceBtn.title = 'Búsqueda por voz';
+                
+                const filterContainer = document.querySelector('.filters');
+                filterContainer.appendChild(voiceBtn);
+
+                voiceBtn.onclick = function() {
+                    recognition.start();
+                    voiceBtn.innerHTML = '<i class="fas fa-circle" style="color: red;"></i>';
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('filterDestination').value = transcript;
+                    filterTable();
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    showNotification(`Búsqueda: "${transcript}"`, 'success');
+                };
+
+                recognition.onerror = function(event) {
+                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    showNotification('Error en reconocimiento de voz', 'error');
+                };
+            }
+        }
+
+        // Función para modo oscuro
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        // Agregar estilos para modo oscuro
+        const darkModeStyles = `
+            .dark-mode {
+                --card-bg: rgba(30, 30, 30, 0.95);
+                --text-primary: #e0e0e0;
+                --text-secondary: #90e0ef;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            }
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = darkModeStyles;
+        document.head.appendChild(style);
+
+        // Inicializar aplicación cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            initVoiceSearch();
+            
+            // Cargar preferencia de modo oscuro
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Validación de formulario mejorada
+        document.getElementById('vehicleSelect').addEventListener('change', function() {
+            const capacity = {
+                'QR-001': 19,
+                'QR-002': 12,
+                'QR-003': 7,
+                'QR-004': 15
+            };
+            
+            const maxPassengers = capacity[this.value] || 19;
+            document.getElementById('passengersInput').max = maxPassengers;
+            document.getElementById('passengersInput').placeholder = `Máximo ${maxPassengers} pasajeros`;
+        });
+
+        // Auto-completar tiempo estimado de llegada
+        document.getElementById('originSelect').addEventListener('change', calculateTravelTime);
+        document.getElementById('destinationSelect').addEventListener('change', calculateTravelTime);
+
+        function calculateTravelTime() {
+            const origin = document.getElementById('originSelect').value;
+            const destination = document.getElementById('destinationSelect').value;
+            
+            if (origin && destination) {
+                // Tiempos estimados en minutos (simulados)
+                const travelTimes = {
+                    'Aeropuerto Cancún_Hotel Xcaret': 45,
+                    'Aeropuerto Cancún_Hotel Moon Palace': 35,
+                    'Playa del Carmen_Tulum': 90,
+                    'Cozumel_Xcaret': 90,
+                    'Akumal_Grand Velas': 30
+                };
+                
+                const key = `${origin}_${destination}`;
+                const duration = travelTimes[key] || 60; // 60 minutos por defecto
+                
+                const departureInput = document.getElementById('departureTime');
+                if (departureInput.value) {
+                    const departure = new Date(departureInput.value);
+                    const arrival = new Date(departure.getTime() + duration * 60000);
+                    
+                    // Mostrar tiempo estimado como información
+                    showNotification(`Tiempo estimado de viaje: ${duration} minutos`, 'success');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
